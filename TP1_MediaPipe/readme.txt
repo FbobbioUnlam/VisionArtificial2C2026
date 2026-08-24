@@ -26,7 +26,7 @@ MediaPipe
 Es la tecnología principal del TP.
 
 Utilizamos específicamente MediaPipe Hand Landmarker, que permite detectar una mano en una imagen o video y obtener 21 puntos de referencia (landmarks) de la mano.
-
+https://developers.google.com/edge/mediapipe/solutions/vision/hand_landmarker?utm_source=chatgpt.com
 
 
 OpenCV
