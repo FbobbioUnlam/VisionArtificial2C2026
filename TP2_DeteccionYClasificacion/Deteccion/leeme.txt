@@ -1,0 +1,8 @@
+Aca van las tres fotos de referencia:
+
+    lentes.jpg
+    lapicera.jpg
+    moneda.jpg
+
+Generalas con:  python capturar_referencia.py
+(tambien sirven .png, .jpeg o .bmp)
