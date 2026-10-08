@@ -1,0 +1,32 @@
+# ------------------------------------------------------------------
+# Configuración general del TP5 - Localización con PnP
+# ------------------------------------------------------------------
+
+camera:
+  index: 0              # índice de la webcam (cv2.VideoCapture)
+  width: 1280           # ¡usar la MISMA resolución que en la calibración!
+  height: 720
+  calibration_file: calibration/camera_params.yml
+
+aruco:
+  dictionary: DICT_4X4_50
+  # Lado REAL del marcador impreso, en metros (medir con regla, solo el
+  # cuadrado negro, sin el margen blanco).
+  marker_length: 0.10
+
+world:
+  map_file: config/world_map.yml
+
+pose:
+  # Descarta soluciones de PnP con error de reproyección medio mayor a esto (px)
+  max_reprojection_error: 4.0
+  # Suavizado exponencial: 0 = sin filtro, 0.9 = muy suave (más lag)
+  smoothing_alpha: 0.5
+  # Largo de la trayectoria dibujada en Foxglove (cantidad de poses)
+  trajectory_length: 300
+
+foxglove:
+  host: 127.0.0.1
+  port: 8765
+  publish_image: true
+  jpeg_quality: 70

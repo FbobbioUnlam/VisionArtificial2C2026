@@ -1,0 +1,28 @@
+# ------------------------------------------------------------------
+# Mapa del mundo: poses conocidas de los marcadores ArUco.
+#
+# Convención (igual que Foxglove / ROS):
+#   - Unidades en metros.
+#   - El "mundo" es el plano de la mesa/piso: X e Y sobre la mesa, Z hacia arriba.
+#   - Los marcadores están APOYADOS sobre la mesa, mirando hacia arriba.
+#   - position = centro del marcador. yaw_deg = rotación alrededor de Z.
+#     Con yaw 0, el borde superior del marcador apunta hacia +Y.
+#
+# Opción A (mínima): dejar un solo marcador en el origen.
+# Opción B (recomendada): varios marcadores medidos con regla/cinta.
+# Si un marcador detectado NO está en este mapa, se ignora.
+# ------------------------------------------------------------------
+
+markers:
+  - id: 0
+    position: [0.00, 0.00, 0.00]
+    yaw_deg: 0
+  - id: 1
+    position: [0.30, 0.00, 0.00]
+    yaw_deg: 0
+  - id: 2
+    position: [0.00, 0.20, 0.00]
+    yaw_deg: 0
+  - id: 3
+    position: [0.30, 0.20, 0.00]
+    yaw_deg: 0

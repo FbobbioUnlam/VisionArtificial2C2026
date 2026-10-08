@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+# grabaciones pesadas (subir solo la que se entregue)
+data/recordings/*.mcap
