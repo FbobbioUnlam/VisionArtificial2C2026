@@ -5,7 +5,7 @@
 **Fecha:** …
 
 ## 1. Objetivo
-Estimar en tiempo real la pose (posición y orientación) de una cámara en un sistema de referencia del mundo, a partir de marcadores ArUco de posición conocida, y visualizarla en Foxglove.
+Estimar en tiempo real la pose (posición y orientación) de una cámara en un sistema de referencia del mundo, a partir de marcadores ArUco de posición conocida, y visualizarla en Open3D.
 
 ## 2. Marco teórico
 ### 2.1 Modelo de cámara pinhole
@@ -25,12 +25,12 @@ Estimar en tiempo real la pose (posición y orientación) de una cámara en un s
 
 ### 2.5 Transformaciones
 - `solvePnP` devuelve T_cw. Pose de la cámara en el mundo: `R_wc = Rᵀ`, `t_wc = −Rᵀ·t`.
-- Convenciones de ejes OpenCV vs. Foxglove; cuaterniones.
+- Convenciones de ejes OpenCV vs. mundo (Z arriba); cuaterniones.
 
 ## 3. Implementación
 - Arquitectura (ver diagrama del README) y descripción de cada módulo.
 - Mapa del mundo utilizado (foto + tabla de posiciones).
-- Publicación en Foxglove: tópicos y layout.
+- Visualización 3D con Open3D: escena fija, frustum a partir de K, trayectoria.
 
 ## 4. Resultados
 ### 4.1 Calibración
@@ -52,7 +52,7 @@ Estimar en tiempo real la pose (posición y orientación) de una cámara en un s
 
 ### 4.3 Capturas
 - Imagen con ejes del mundo dibujados.
-- Panel 3D de Foxglove con cámara y trayectoria.
+- Ventana 3D de Open3D con cámara y trayectoria.
 
 ## 5. Limitaciones y problemas encontrados
 - Ambigüedad / "flip" con un solo marcador.
@@ -65,5 +65,5 @@ Estimar en tiempo real la pose (posición y orientación) de una cámara en un s
 - OpenCV – Camera Calibration and 3D Reconstruction.
 - OpenCV – Detection of ArUco Markers.
 - Zhang, Z. (2000). *A flexible new technique for camera calibration.*
-- Foxglove SDK – documentación.
+- Open3D – documentación (https://www.open3d.org/docs/).
 - VisiAr – https://github.com/AlejandroSilvestri/VisiAr

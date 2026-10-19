@@ -2,12 +2,12 @@
 
 **Visión Artificial – Ingeniería en Informática – UNLaM – 2C 2026**
 
-> **Consigna:** a partir de la detección de marcadores ArUco, estimar la pose de la cámara con PnP y mostrar su localización en el mundo con un visualizador (Foxglove). Si la cámara se mueve, la pose debe actualizarse en el visualizador. Requiere calibrar la cámara previamente.
+> **Consigna:** a partir de la detección de marcadores ArUco, estimar la pose de la cámara con PnP y mostrar su localización en el mundo con un visualizador 3D (Open3D). Si la cámara se mueve, la pose debe actualizarse en el visualizador. Requiere calibrar la cámara previamente.
 
 ## Pipeline
 
 ```
-Webcam ─► Detección ArUco ─► PnP (2D↔3D) ─► Inversión T_cw → T_wc ─► Filtro ─► Foxglove
+Webcam ─► Detección ArUco ─► PnP (2D↔3D) ─► Inversión T_cw → T_wc ─► Filtro ─► Open3D
               │                    ▲
               │        config/world_map.yml (poses 3D de los marcadores)
               │        calibration/camera_params.yml (K, distorsión)
@@ -18,7 +18,7 @@ Webcam ─► Detección ArUco ─► PnP (2D↔3D) ─► Inversión T_cw → T
 ```
 TP5/
 ├── config/
-│   ├── settings.yml          # cámara, diccionario, tamaño de marcador, Foxglove
+│   ├── settings.yml          # cámara, diccionario, tamaño de marcador, pose
 │   └── world_map.yml         # dónde está cada marcador en el mundo (metros)
 ├── calibration/
 │   ├── capture_images.py     # Fase 1: captura fotos del tablero
@@ -32,14 +32,14 @@ TP5/
 │   ├── detector.py           # Fase 2: detección ArUco (también se puede correr solo)
 │   ├── pose_estimator.py     # Fase 3: PnP + inversión de la transformación
 │   ├── filters.py            # Fase 5: suavizado (EMA + slerp)
-│   ├── visualizer.py         # Fase 4: publicación en Foxglove
+│   ├── visualizer.py         # Fase 4: visualización 3D con Open3D
 │   └── main.py               # programa principal
 ├── tools/
-│   ├── fake_pose_publisher.py  # pose falsa para probar Foxglove sin cámara
+│   ├── fake_pose_publisher.py  # pose falsa para probar el visualizador sin cámara
 │   └── measure_accuracy.py     # validación: posición real vs. estimada
 ├── tests/
 │   └── test_pose_synthetic.py  # test de punta a punta con imágenes sintéticas
-├── data/recordings/          # grabaciones .mcap
+├── data/recordings/          # poses grabadas (.csv)
 └── docs/
     ├── hoja_de_ruta.md       # plan de trabajo y reparto
     └── informe.md            # plantilla del informe
@@ -54,7 +54,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Instalar también **Foxglove** (app de escritorio o https://app.foxglove.dev).
+> Si `pip` no encuentra `open3d`, no hay wheel para tu versión de Python: usar Python 3.10–3.13.
 
 > Todos los comandos se corren **desde la carpeta `TP5`**.
 
@@ -89,15 +89,15 @@ Instalar también **Foxglove** (app de escritorio o https://app.foxglove.dev).
 ### 3. Correr la localización
 ```bash
 python -m src.main             # en vivo
-python -m src.main --record    # además graba data/recordings/sesion_*.mcap
+python -m src.main --record    # además graba las poses en data/recordings/sesion_*.csv
 ```
-En Foxglove: **Open connection → Foxglove WebSocket → `ws://localhost:8765`**.
+Se abren dos ventanas: la de OpenCV (imagen con detecciones y ejes del mundo) y la **ventana 3D de Open3D** con la grilla de la mesa, los ejes del mundo, los marcadores (la línea roja es su borde superior), la cámara con su frustum (calculado con K) y la trayectoria.
 
-En el panel **3D**: *Display frame* = `world`. Se ven los marcadores, la cámara (con su frustum gracias a `/camera/calibration`) y la trayectoria. Agregar un panel **Image** con `/camera/image`.
+En la ventana 3D: arrastrar = rotar, rueda = zoom, Ctrl+arrastrar = desplazar. Cerrarla termina el programa.
 
 ### Herramientas
 ```bash
-python tools/fake_pose_publisher.py                      # probar Foxglove sin cámara
+python tools/fake_pose_publisher.py                      # probar el visualizador sin cámara
 python tools/measure_accuracy.py --real 0.30 0.10 0.45   # medir error (va a docs/mediciones.csv)
 python -m tests.test_pose_synthetic                      # verificar PnP con imágenes sintéticas
 ```
@@ -106,7 +106,7 @@ python -m tests.test_pose_synthetic                      # verificar PnP con im�
 
 | Sistema | Ejes |
 |---|---|
-| Mundo (`world`) | X, Y sobre la mesa, **Z hacia arriba** (igual que Foxglove/ROS) |
+| Mundo (`world`) | X, Y sobre la mesa, **Z hacia arriba** (igual que ROS) |
 | Cámara (`camera`, OpenCV) | X derecha, Y abajo, **Z hacia adelante** |
 
 `solvePnP` devuelve **T_cw** (el mundo visto desde la cámara). La posición de la cámara en el mundo es `t_wc = -Rᵀ·t` y su orientación es `R_wc = Rᵀ`.

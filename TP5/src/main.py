@@ -1,12 +1,13 @@
-"""Programa principal: cámara -> ArUco -> PnP -> Foxglove.
+"""Programa principal: cámara -> ArUco -> PnP -> visualizador 3D (Open3D).
 
 Uso (desde la carpeta TP5):
     python -m src.main                     # en vivo
-    python -m src.main --record            # además graba data/recordings/*.mcap
+    python -m src.main --record            # además graba las poses en data/recordings/*.csv
     python -m src.main --video demo.mp4    # usar un video en lugar de la webcam
     python -m src.main --no-window         # sin ventana de OpenCV
 
-Teclas en la ventana:  q = salir,  r = borrar trayectoria
+Teclas en la ventana de OpenCV:  q = salir,  r = borrar trayectoria
+Cerrar la ventana 3D también termina el programa.
 """
 from __future__ import annotations
 
@@ -21,7 +22,7 @@ from src.config import load_camera_params, load_settings, load_world_map, resolv
 from src.detector import ArucoDetector
 from src.filters import PoseSmoother
 from src.pose_estimator import PoseEstimator
-from src.visualizer import FoxgloveVisualizer
+from src.visualizer import Open3DVisualizer
 
 
 def overlay(frame, pose, lost_for: float, fps: float) -> None:
@@ -43,12 +44,12 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="TP5 - Localización con PnP")
     ap.add_argument("--config", default="config/settings.yml")
     ap.add_argument("--video", help="archivo de video en lugar de la webcam")
-    ap.add_argument("--record", action="store_true", help="grabar sesión en MCAP")
+    ap.add_argument("--record", action="store_true", help="grabar las poses en CSV")
     ap.add_argument("--no-window", action="store_true")
     args = ap.parse_args()
 
     cfg = load_settings(args.config)
-    cam_cfg, aruco_cfg, pose_cfg, fx_cfg = cfg["camera"], cfg["aruco"], cfg["pose"], cfg["foxglove"]
+    cam_cfg, aruco_cfg, pose_cfg = cfg["camera"], cfg["aruco"], cfg["pose"]
     L = float(aruco_cfg["marker_length"])
 
     cam = load_camera_params(cam_cfg["calibration_file"])
@@ -70,29 +71,22 @@ def main() -> None:
     estimator = PoseEstimator(cam, world, L, pose_cfg["max_reprojection_error"])
     smoother = PoseSmoother(pose_cfg["smoothing_alpha"])
 
-    mcap = None
+    record = None
     if args.record:
         stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        mcap = str(resolve(f"data/recordings/sesion_{stamp}.mcap"))
-    viz = FoxgloveVisualizer(fx_cfg["host"], fx_cfg["port"], pose_cfg["trajectory_length"], mcap)
+        record = str(resolve(f"data/recordings/sesion_{stamp}.csv"))
+    viz = Open3DVisualizer(world, L, cam, (w, h), pose_cfg["trajectory_length"], record)
 
     last_pose, last_seen = None, 0.0
-    last_static = 0.0
     t_prev, fps = time.time(), 0.0
     try:
         while ok:
             now = time.time()
-            # La escena fija se republica cada 2 s para clientes que se conectan tarde
-            if now - last_static > 2.0:
-                viz.publish_world(world, L)
-                viz.publish_calibration(cam, w, h)
-                last_static = now
-
             detections = detector.detect(frame)
             pose = estimator.estimate(detections)
             if pose is not None:
                 last_pose, last_seen = smoother.update(pose), now
-                viz.publish_pose(last_pose)
+                viz.update_pose(last_pose)
             lost_for = 0.0 if pose is not None else (now - last_seen if last_pose else 0.0)
 
             detector.draw(frame, detections)
@@ -102,8 +96,8 @@ def main() -> None:
             t_prev = now
             overlay(frame, last_pose, lost_for, fps)
 
-            if fx_cfg.get("publish_image", True):
-                viz.publish_image(frame, fx_cfg.get("jpeg_quality", 70))
+            if not viz.render():          # se cerró la ventana 3D
+                break
 
             if not args.no_window:
                 cv2.imshow("TP5 - Localizacion con PnP (q: salir, r: reset trayectoria)", frame)
@@ -111,7 +105,7 @@ def main() -> None:
                 if key == ord("q"):
                     break
                 if key == ord("r"):
-                    viz.trajectory.clear()
+                    viz.clear_trajectory()
             ok, frame = cap.read()
     except KeyboardInterrupt:
         pass

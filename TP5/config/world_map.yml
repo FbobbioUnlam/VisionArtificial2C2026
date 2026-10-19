@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------
 # Mapa del mundo: poses conocidas de los marcadores ArUco.
 #
-# Convención (igual que Foxglove / ROS):
+# Convención (igual que ROS):
 #   - Unidades en metros.
 #   - El "mundo" es el plano de la mesa/piso: X e Y sobre la mesa, Z hacia arriba.
 #   - Los marcadores están APOYADOS sobre la mesa, mirando hacia arriba.

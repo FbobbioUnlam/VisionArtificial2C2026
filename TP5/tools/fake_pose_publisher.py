@@ -1,4 +1,4 @@
-"""Publica una pose FALSA (cámara girando en círculo) en Foxglove.
+"""Muestra una pose FALSA (cámara girando en círculo) en el visualizador Open3D.
 
 Sirve para armar y probar la visualización (Fase 4) en paralelo, sin tener
 la calibración ni la detección listas.
@@ -15,7 +15,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.config import load_settings, load_world_map  # noqa: E402
 from src.pose_estimator import CameraPose  # noqa: E402
-from src.visualizer import FoxgloveVisualizer  # noqa: E402
+from src.visualizer import Open3DVisualizer  # noqa: E402
 
 
 def look_at(eye: np.ndarray, target: np.ndarray) -> np.ndarray:
@@ -35,17 +35,20 @@ def main():
     L = cfg["aruco"]["marker_length"]
     world = load_world_map(cfg["world"]["map_file"], L)
     center = np.mean([m.t for m in world.values()], axis=0)
-    viz = FoxgloveVisualizer(cfg["foxglove"]["host"], cfg["foxglove"]["port"])
-    print("Publicando pose falsa. Ctrl+C para salir.")
+    viz = Open3DVisualizer(world, L, trajectory_length=cfg["pose"]["trajectory_length"])
+    print("Mostrando pose falsa. Cerrar la ventana o Ctrl+C para salir.")
     t0 = time.time()
     try:
         while True:
             t = time.time() - t0
             eye = center + np.array([0.5 * np.cos(0.5 * t), 0.5 * np.sin(0.5 * t), 0.4])
-            viz.publish_world(world, L)
-            viz.publish_pose(CameraPose(look_at(eye, center), eye, 0.0, []))
+            viz.update_pose(CameraPose(look_at(eye, center), eye, 0.0, []))
+            if not viz.render():
+                break
             time.sleep(1 / 30)
     except KeyboardInterrupt:
+        pass
+    finally:
         viz.close()
 
 

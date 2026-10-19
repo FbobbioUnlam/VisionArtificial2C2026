@@ -78,7 +78,9 @@ def main():
     per_image = []
     for name, op, ip, rv, tv in zip(names, obj_pts, img_pts, rvecs, tvecs):
         proj, _ = cv2.projectPoints(op, rv, tv, K, dist)
-        e = float(np.sqrt(np.mean(np.sum((proj - ip) ** 2, axis=2))))
+        # reshape: OpenCV 5 devuelve las esquinas como (N, 2) y projectPoints como (N, 1, 2)
+        diff = proj.reshape(-1, 2) - ip.reshape(-1, 2)
+        e = float(np.sqrt(np.mean(np.sum(diff ** 2, axis=1))))
         per_image.append((e, name))
     for e, name in sorted(per_image, reverse=True):
         flag = "  <-- revisar/borrar" if e > 2 * rms else ""

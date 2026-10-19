@@ -30,7 +30,7 @@ class CameraPose:
 
 
 def rotation_to_quaternion(R: np.ndarray) -> np.ndarray:
-    """Matriz de rotación -> cuaternión (x, y, z, w), formato de Foxglove."""
+    """Matriz de rotación -> cuaternión (x, y, z, w)."""
     tr = np.trace(R)
     if tr > 0:
         s = np.sqrt(tr + 1.0) * 2
