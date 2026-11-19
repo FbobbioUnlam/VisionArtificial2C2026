@@ -25,10 +25,10 @@ existing = [int(f.stem.split("_")[-1]) for f in imagesDir.glob("calib_*.png") if
 nextImage = max(existing, default=0) + 1
 
 print("""
-      Usage:
-      Space: take picture
-      C: calibrate with taken pictures
-      ESC: quit
+      Uso:
+      Spacio: capturar imagen
+      C: calibrar con imagen capturada
+      ESC: SALIR
       """)
 
 ESC = chr(27)

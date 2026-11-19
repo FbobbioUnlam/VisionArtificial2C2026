@@ -84,6 +84,7 @@ def main() -> None:
             now = time.time()
             detections = detector.detect(frame)
             pose = estimator.estimate(detections)
+            viz.set_detected(detections.keys())
             if pose is not None:
                 last_pose, last_seen = smoother.update(pose), now
                 viz.update_pose(last_pose)

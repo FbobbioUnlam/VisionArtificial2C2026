@@ -1,8 +1,4 @@
-"""Fase 2a - Generación de marcadores ArUco para imprimir.
-
-Uso (desde la carpeta TP5):
-    python markers/generate_markers.py                 # IDs del world_map.yml
-    python markers/generate_markers.py --ids 0 1 2 3
+"""
 
 Genera en markers/output/:
   - aruco_<id>.png       un marcador por archivo

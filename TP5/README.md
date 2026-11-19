@@ -93,7 +93,7 @@ python -m src.main --record    # además graba las poses en data/recordings/sesi
 ```
 Se abren dos ventanas: la de OpenCV (imagen con detecciones y ejes del mundo) y la **ventana 3D de Open3D** con la grilla de la mesa, los ejes del mundo, los marcadores (la línea roja es su borde superior), la cámara con su frustum (calculado con K) y la trayectoria.
 
-En la ventana 3D: arrastrar = rotar, rueda = zoom, Ctrl+arrastrar = desplazar. Cerrarla termina el programa.
+En la ventana 3D: arrastrar = rotar, rueda = zoom, Ctrl+arrastrar = desplazar, **F** = encuadrar todo (marcadores + cámara + trayectoria), **A** = activar/desactivar el encuadre automático (por defecto activado: si la cámara sale de la pantalla, la vista se reencuadra sola). Cerrarla termina el programa.
 
 ### Herramientas
 ```bash
